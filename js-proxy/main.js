@@ -282,7 +282,152 @@ function test_proxy(){
 
     /// construct
     /// 用于拦截new命令
+    /// construct方法可以接受两个参数,分别为: target:目标对象,args:构造函数的参数对象,newTarge:创造实例对象时，new命令作用的构造函数
+    let p10 = new Proxy(function (){},{
+        construct: function(target, args){
+            console.log('called:' + args.join(', '));
+            return {value: args[0] + 10};
+        }
+    });
+    console.log((new p10(1)).value); // 11
+    /// construct方法返回的必须是一个对象，否则会报错
 
+
+    /// deleteProperty
+    /// 用于拦截delete操作，如果这个方法抛出错误活着返回false，当前属性就不能被delete命令删除
+    var p11 = {
+        deleteProperty(target, key){
+            invariant(key,'delete');
+            return true;
+        }
+    };
+    var p11_1 = {_prop:'foo'};
+    var p11_2 = new Proxy(p11_1, p11);
+    //delete p11_2._prop; // Error: Invalid attempt to delete private '_prop property
+    /// 注意，目标对象自身的不可配置(configurable)属性，不能被deleteProperty方法删除，否则会报错
+
+    /// defineProperty
+    /// 拦截了Object.defineProperty操作
+    let p12 = {
+        defineProperty(target, key, descriptor){
+            return false;
+        }
+    };
+    let p12_1 = {};
+    let p12_2 = new Proxy(p12_1, p12);
+    p12_2.foo = 'bar';
+    console.log(p12_2.foo);// undefined
+    /// 如果目标对象不可扩展(extensible),则defineProperty不能增加目标对象上不存在的属性，否则会报错
+    /// 如果目标对象的某个属性不可写(writable)或不可配置(configurable),则defineProperty不能修改这两个设置
+
+    /// isExtensible 是否可以扩展
+    /// isExtensible方法拦截Object.isExtensible操作
+    let p13 = new Proxy({},{
+        isExtensible(target){
+            console.log('called');
+            return true;
+        }
+    });
+    console.log(Object.isExtensible(p13)); // true
+    /// 该方法返回boolean值，如果，不是boolean值，则强制转换为boolean值
+    /// 这个方法有一个强限制，它的返回值必须与目标对象的isExtensible属性保持一致，否则就会抛出错误。
+    let p13_1 = new Proxy({},{
+        isExtensible: function(target){
+            return false;
+        }
+    });
+    //Object.isExtensible(p13_1);// TypeError: 'isExtensible' on proxy: trap result does not reflect extensibility of proxy target (which is 'true')
+
+    let p13_1_1 = {};
+    /// Object.preventExtensions 经过这个方法处理过的对象,不影响原有对象的删除,修改.但是无法添加新的属性成员了.
+    Object.preventExtensions(p13_1_1);
+    let p13_2 = new Proxy(p13_1_1,{
+        isExtensible: function(target){return false;}
+    });
+    console.log(Object.isExtensible(p13_2)); // false
+    /// 感觉，没卵用啊，或许是理解不够深入吧
+
+    /// ownKeys 用来拦截对象自身属性的读取操作
+    /// Object.getOwnPropertyNames
+    /// Object.getOwnPropertySymbols
+    /// Object.keys
+    /// for ... in  循环
+    let p14 = {a:1, b:2, c:3};
+    let p14_1 = {
+        ownKeys(target){
+            return ['a'];
+        }
+    }
+    let proxy = new Proxy(p14, p14_1);
+    console.log(Object.keys(proxy)); // [ 'a' ]
+    console.log(Object.getOwnPropertyNames(proxy)); // [ 'a' ]
+    console.log(Object.getOwnPropertySymbols(proxy)); // []
+    for(let k in proxy) console.log(k); // a
+    /// 过滤私有属性
+    let p14_2 = {_bar:'foo',_prop:'bar',prop:'bar2'};
+    let p14_2_1 = {
+        ownKeys(target){
+            return Reflect.ownKeys(target).filter(key=>key[0] !== '_');
+        }
+    };
+    let p14_2_2 = new Proxy(p14_2,p14_2_1);
+    for(let key of Object.keys(p14_2_2)){
+        console.log(key); // prop
+    }
+    /// 使用Object.keys方法时，有三类属性会被ownKeys自动过滤
+    /// 1. 目标对象上不存在的属性，2. 属性名为Symbol值，3. 不可遍历(enumerable)的属性
+    /// ownKeys方法返回的数组，只能时字符串或者Symbol值，如果有其他类型的值，或者返回的
+    /// 根本不是数组，就会报错。
+
+    /// preventExtensions
+    /// 拦截Object.preventExtensions方法，该方法必须返回一个boolean值，否则会自动转换为
+    /// boolean值
+    /// 只有目标对象不可扩展时，才能返回true,否则会报错。
+    let p15 = new Proxy({},{
+        preventExtensions(target){
+            return true;
+        }
+    });
+    //Object.preventExtensions(p15); // TypeError: 'preventExtensions' on proxy: trap returned truish but the proxy target is extensible
+    let p15_1 = new Proxy({},{
+        preventExtensions(target){
+            /// 为了防止上面的问题，通常再调用一次Object.preventExtensions方法
+            Object.preventExtensions(target);
+            return true;
+        }
+    });
+    console.log(Object.preventExtensions(p15_1));//{}
+
+    /// setPrototypeOf
+    /// 拦截Object.setPrototypeOf方法
+    let p16 = {
+        setPrototypeOf(target, proto){
+            throw new Error('Changing the prototype is forbidden');
+        }
+    };
+    var p16_1 = {};
+    var p16_2 = function (){};
+    var p16_3 = new Proxy(p16_2,p16);
+    //Object.setPrototypeOf(p16_3,p16_1); // Error: Changing the prototype is forbidden
+    /// 注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（extensible），setPrototypeOf方法不得改变目标对象的原型。
+
+    /// Proxy.revocable()
+    /// 返回一个可以取消的Proxy实例
+    {
+        let p17 = {};
+        let p17_1 = {};
+        /// 注意: Proxy.revocable返回的是{proxy,revoke},所以，前面变量必须同名
+        let {proxy,revoke} = Proxy.revocable(p17,p17_1);
+        proxy.foo = 123;
+        console.log(proxy.foo);
+        revoke();
+        console.log(proxy.foo); // TypeError: Cannot perform 'get' on a proxy that has been revoked
+    }
+
+    /// this问题
+    /// 虽然 Proxy 可以代理针对目标对象的访问，但它不是目标对象的透明代理，
+    /// 即不做任何拦截的情况下，也无法保证与目标对象的行为一致。主要原因就是
+    /// 在 Proxy 代理的情况下，目标对象内部的this关键字会指向 Proxy 代理。
 
 }
 
