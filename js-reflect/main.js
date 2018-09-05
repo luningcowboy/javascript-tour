@@ -210,7 +210,7 @@ let test_reflect = ()=>{
         console.log(Object.isExtensible(myObj)); // true
         console.log(Reflect.isExtensible(myObj)); // true
         console.log(Object.isExtensible(1)); // false
-        console.log(Reflect.isExtensible(1)); // TypeError: Reflect.isExtensible called on non-object
+        //console.log(Reflect.isExtensible(1)); // TypeError: Reflect.isExtensible called on non-object
     }
 
     // * Reflect.preventExtensions(target)
@@ -219,6 +219,21 @@ let test_reflect = ()=>{
         let myObj = {};
         Object.preventExtensions(myObj);
         Reflect.preventExtensions(myObj);
+    }
+
+    // * Reflect.ownKeys()
+    // * Reflect.onwKeys 方法用于繁华对象的所有属性，基本等同于Object.getWonPropertyNames和
+    // * Object.getOwnPropertySymbols之和
+    {
+        let myObj = {
+            foo                 : 1,
+            bar                 : 2,
+            [Symbol.for('baz')] : 3,
+            [Symbol.for('bing')]: 4,
+        };
+        console.log(Object.getOwnPropertyNames(myObj)); //[ 'foo', 'bar' ]
+        console.log(Object.getOwnPropertySymbols(myObj)); //[ Symbol(baz), Symbol(bing) ]
+        console.log(Reflect.ownKeys(myObj)); //[ 'foo', 'bar', Symbol(baz), Symbol(bing) ]
     }
 
 
