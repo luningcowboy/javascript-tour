@@ -168,7 +168,60 @@ let test_promise = ()=>{
     {
         let p1 = new Promise((resolve, reject)=>setTimeout(()=>reject(new Error('p1 error')),100)).then(result=>result);
         let p2 = new Promise((resolve, reject)=>setTimeout(()=>resolve('p2 resolve'),200)).then(result=>result);
-        Promise.race([p1,p2]).then(result=>console.log(result)).catch(e=>e);
+        Promise.race([p1,p2]).then(result=>console.log(result)).catch(e=>console.log(e));
+
+    }
+    
+    // ! Promise.resolve 将现有对象转化为Promise对象
+    // ! Promise.resolve('foo') 等价于 new Promise(resolve => resolve('foo'))
+    {
+        // ! 四种情况
+        // ! 1. 参数是一个Promise实例，那么Promise.resolve将不做任何修改
+        // ! 2. 参数是一个thenable对象,Promise.resolve会将这个对象转化为Promise对象，
+        // !    并立即执行thenable对象的then方法
+        let thenable = {
+            then: function(resolve, reject){
+                resolve(42);
+            }
+        };
+        let p1 = Promise.resolve(thenable);
+        p1.then(value=>console.log('thenable',value));
+        // ! 3. 参数不具有then方法，或者根本就不是对象,Promise.resolve方法辉返回一个新的Promise对象
+        // !    状态为resolved
+        let p2 = Promise.resolve('helloxxxxxxx');
+        p2.then(s=>console.log(s));
+        // ! 4. 不带有任何参数, 直接返回一个resolved状态的Promise对象
+        // ! 注意: 立即rsolve的Promise对象，是在本轮'事件循环'(eventloop)的结束时，
+        // ! 而不是在下一轮'事件循环'的开始时.
+        setTimeout(()=>console.log('three'),0);
+        Promise.resolve().then(()=>console.log('two'));
+        console.log('one');
+    }
+
+    // ! Promise.reject, 返回一个新的Promise实例，该实例的状态为rejected
+    {
+        let p1 = Promise.reject('error 出错了');
+        p1.then(null,s=>console.log(s));
+        // ! reject方法的参数，会原封不动的作为reject的理由，
+        // ! 变成后续方法的参数，这点于Promise.resolve不同
+        let thenable = {
+            then(resolve, reject){
+                reject('fuck error');
+            }
+        };
+        Promise.reject(thenable).catch(e=>console.log(e===thenable)); // true
+    }
+    
+    // ! 应用: 下载图片
+    {
+        let preloadImg = (path)=>{
+            return new Promise((resolve, reject)=>{
+                let img = new Image();
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = path;
+            });
+        };
     }
 
 };
