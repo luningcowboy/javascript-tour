@@ -115,10 +115,112 @@ let test = ()=>{
         // !  注意: 普通对象这样部署没有用的
 
         // ! 另一种循环
-        let tmp_value = iterable.next();
-        while(!tmp_value.done) {
-            console.log(tmp_value);
-            tmp_value = iterable.next();
+        // let tmp_value = iterable.next();
+        // while(!tmp_value.done) {
+        //     console.log(tmp_value);
+        //     tmp_value = iterable.next();
+        // }
+    }
+
+    // ! 调用iterator接口的场合
+    {
+        // * 1. 解构赋值
+        let set = new Set().add('a').add('b').add('c');
+        let [x,y] = set;
+        let [first, ...rest] = set;
+        console.log(x,y, first, rest); // a b a [ 'b', 'c' ]
+        // * 2. 拓展运算符
+        let str = 'hello';
+        console.log([...str]); // [ 'h', 'e', 'l', 'l', 'o' ]
+        let arr = ['b', 'c'];
+        console.log(['a', ...arr, 'd']); // [ 'a', 'b', 'c', 'd' ]
+        // * 3 yield* 后面跟的是一个可遍历结构，它会调用该结构的遍历器接口
+        let generator = function*(){
+            yield 1;
+            yield *[2,3,4];
+            yield 5;
+        };
+        var itor = generator();
+        console.log([...itor]); // [ 1, 2, 3, 4, 5 ]
+        // * 4 其他场合
+        //! for...of
+        //! Array.from()
+        //! Map, Set, WeakMap, WeakSet
+        //! Promise.all()
+        //! Promise.race()
+    }
+
+    // * 字符串的Iterator接口
+    {
+        let some_str = 'hi';
+        console.log(some_str[Symbol.iterator]); // [Function: [Symbol.iterator]]
+        let itor = some_str[Symbol.iterator]();
+        console.log(itor.next(), itor.next(), itor.next()); // { value: 'h', done: false } { value: 'i', done: false } { value: undefined, done: true }
+        
+        let str = new String('hi');
+        str[Symbol.iterator] = function(){
+            return {
+                _first: true,
+                next:function(){
+                    if(this._first){
+                        this._first = false;
+                        return {value:'bye', done: false};
+                    }
+                    else{
+                        return {
+                            done: true
+                        };
+                    }
+                }
+            };
+        };
+        console.log(str, [...str]);// { [String: 'hi'] [Symbol(Symbol.iterator)]: [Function] } [ 'bye' ]
+    }
+
+    // * Iterator 与 Generator 函数
+    {
+        // ! 第一种实习方案
+        let myIterable = {
+            [Symbol.iterator]: function * (){
+                yield 1;
+                yield 2;
+                yield 3;
+                yield 4;
+            }
+        };
+        console.log([...myIterable]); // [ 1, 2, 3, 4 ]
+
+        // ! 第二种实现方案
+        let myIterable2 = {
+            *[Symbol.iterator](){
+                yield 1;
+                yield 2;
+                yield 3;
+                yield 4;
+            }
+        };
+        console.log([...myIterable2]); // [ 1, 2, 3, 4 ]
+    }
+
+    // * 遍历对象的 return 和 throw方法
+    // * 遍历对象除了有next方法还有return和throw方法，只是，next是必须部署的，return,throw不是必须的
+    {
+        // * return方法的使用场合是,循环过程中提前退出(出错 或 break) 都会调用return方法,如果
+        // * 一个对象在完成遍历前，需要清理或释放资源，就可以部署return方法
+        function readLineSync(file){
+            return {
+                [Symbol.iterator](){
+                    return {
+                        next(){
+                            return {done: false};
+                        },
+                        return(){
+                            file.close();
+                            return {done: true};
+                        }
+                    };
+                }
+            };
         }
     }
 };
