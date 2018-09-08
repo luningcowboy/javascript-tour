@@ -222,7 +222,52 @@ let test = ()=>{
                 }
             };
         }
+        // ! 触发return的两种情况
+        // ! 情况1
+        // for(let line of readLineSync(fileName)){
+        //     console.log(line);
+        //     break;
+        // }
+        // ! 情况2
+        // for(let line of readLineSync(fileName)){
+        //     console.log(line);
+        //     throw new Error();
+        // }
     }
+
+    // * for...of循环
+    // * 数组
+    {
+        let arr = ['red','gree','blue'];
+        for(let v of arr) console.log(v); // red green blue
+        let obj = {};
+        obj[Symbol.iterator] = arr[Symbol.iterator].bind(arr);
+        for(let v of obj) console.log(v); // red green blue
+
+        // ! for in 遍历数组只能获得键名，不能获得键值，for of可以
+        for(let i in arr) console.log(i); // 0 1 2
+
+        // ! for of 循环只调用遍历器接口，这点与for in不同
+        arr.foo = 'hello';
+        for(let i in arr) console.log(i); // 0 1 2 foo
+        for(let v of arr) console.log(v); // red green blue
+    }
+    // * Set Map
+    {
+        // ! set
+        let engines = new Set(['Gecko','Krident','Webkit','Webkit']);
+        for(let e of engines) console.log(e); // Gecko Krident Webkit
+
+        let m = new Map([['a',1],['b',2],['c',3]]);
+        for(let [k,v] of m) console.log(`key:${k},value:${v}`); // key:a,value:1 key:b,value:2 key:c,value:3
+        for(let pair of m) console.log(pair); // [ 'a', 1 ] [ 'b', 2 ] [ 'c', 3 ]
+    }
+    // ! 与其他遍历算法的比较
+    // * for 写法麻烦
+    // * forEach 无法中断 break, return都不行
+    // * for ... in 遍历数组只能返回键名， 不会只遍历数字键名，某些情况下以任意顺序遍历键名, 适合遍历对象不适合遍历数组
+    // * for ... of 没有for ... in的缺点，可以被break, continue, return 中断,提供了遍历所有数据的统一操作接口
+    
 };
 
 
