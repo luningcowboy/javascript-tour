@@ -11,8 +11,6 @@
         "describe":true,
         "it":true,
         "sp":false,
-        "await":true,
-        "async":true,
         "module": true
     },
     "strict": false,

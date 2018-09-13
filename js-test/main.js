@@ -83,8 +83,19 @@ let test_read_endless_config = ()=>{
 
 };
 
+function test_map(){
+    let m = new Map();
+    m.set(111,[0,1]);
+    m.set(112,[0,2]);
+    m.set(113,[0,3]);
+    for(let e of m){
+        console.log(e);
+    }
+}
+
 function main(){
 
+    test_map();
     //test_random();
     // let arr = [];
     // let max = 100000;
@@ -97,7 +108,7 @@ function main(){
     // });
     // console.log(arr);
 
-    test_read_endless_config();
+    //test_read_endless_config();
 
 }
 
