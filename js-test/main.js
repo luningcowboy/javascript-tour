@@ -93,9 +93,17 @@ function test_map(){
     }
 }
 
+function test_loop(){
+    for(let i = 0; i < 10; i++) console.log(`xxxx${i}`);
+    for(let i = 0; i < 10; ++i) console.log(`yyyy${i}`);
+    // ! 循环的时候尽量减少使用i++,i++会比++i多一次开销
+}
+
+
 function main(){
 
-    test_map();
+    //test_map();
+    //test_loop();
     //test_random();
     // let arr = [];
     // let max = 100000;
@@ -109,6 +117,16 @@ function main(){
     // console.log(arr);
 
     //test_read_endless_config();
+
+    function f(a,b,m){
+        let ret = [];
+        let t = [1,2];
+        //2*2
+        //2*2*2
+        //2*2*2*2
+        //2*2*2*2*2
+        return ret;
+    }
 
 }
 

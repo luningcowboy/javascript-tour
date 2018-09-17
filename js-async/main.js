@@ -137,3 +137,81 @@ console.log('js-async');
         });
     }
 }
+
+// * 与其他异步方法的比较
+{
+    // * 假设某个Dom元素上部署了一系列动画，前一个动画结束，才能开始后一个动画，如果
+    // * 当中有一个动画出错，就不再往下执行，返回上一个成功执行的动画的返回值.
+    // ! Promise写法
+    function chainANimationPromise(elem, animations){
+        let ret = null;
+        let p = Promise.resolve();
+
+        for(let anim of animations){
+            p = p.then(v=>{
+                ret = v;
+                return anim(elem);
+            })
+        }
+        return p.catch(e=>console.log(e)).then(()=>{return ret;});
+    }
+
+    // ! Generator写法
+    // function chainAnimationGenerator(elem, animaitons){
+    //     let ret = null;
+    //     try{
+    //         for(let anim of animaitons){
+    //             ret = yield anim(elem);
+    //         }
+    //     }
+    //     catch(e){
+    //         console.log(e);
+    //     }
+    //     return ret;
+    // }
+
+    // ! async 写法
+    async function chainAnimationAsync(elem, animaitons){
+        let ret = null;
+        try{
+            for(let anim of animaitons){
+                ret = await anim;
+            }
+        }
+        catch(e){}
+        return ret;
+    }
+}
+
+// * 按顺序完成异步操作
+{
+    // ! 远程读取url
+    // * 继发
+    async function logInOrder(urls){
+        for(const url of urls){
+            const response = await fetch(url);
+            console.log(await response.text());
+        }
+    }
+    // * 并发
+    async function logInOrder2(urls){
+        const textPromises = urls.map(async url=>{
+            const response = await fetch(url);
+            return response.text();
+        });
+        for(const textPromise of textPromises){
+            console.log(await textPromise);
+        }
+    }
+    // ! 虽然map方法的参数是async函数，但是它是并发执行的，因为只有async函数内部是继发执行，
+    // ! 外部不受影响.后面的for...of循环使用了await,因此实现了按顺序输出。
+}
+
+{
+    async function* gen(){
+        yield 'hello';
+    }
+    let genObj = gen();
+    genObj.next().then(x=>console.log(x));
+}
+// * 异步遍历器相关，以后补上
