@@ -74,10 +74,35 @@ let fsm_pop_manager = ()=>{
         ],
     });
 };
+function test_fsm_2(){
+    let fsm = new StateMachine({
+        init: 'none',
+        transitions:[
+            {name: 'fill', from:'none', to:'filled'},
+            {name: 'showFrame', from: 'none', to: 'frame'},
+            {name: 'showFrame', from: 'filled', to: 'frame'},
+            {name: 'fill', from: 'frame', to: 'filled'},
+            {name: 'clean', from: 'fill', to: 'none'},
+            {name: 'hideFrame', from: 'frame', to:'none'},
+            {name: 'hideFrame', from:'frame', to:'filled'}
+        ],
+        methods:{
+            onFill:()=>{console.log('filled');},
+            onShowFrame:()=>{console.log('show frame');},
+            onClean:()=>{console.log('clean');},
+            onHideFrame:()=>{console.log('hide frame');},
+        }
+    });
+    console.log(fsm.state,fsm.transitions() );
+    fsm.showFrame();
+    console.log(fsm.state,fsm.transitions() );
+    fsm.hideFrame();
+    console.log(fsm.state,fsm.transitions() );
+    
+}
 function main(){
     console.log('有限状态机Finite-state machine');
-    //test_fsm_0();
-    eval('test_fsm_0()');
+    test_fsm_2();
 
 }
 
