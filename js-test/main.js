@@ -99,9 +99,376 @@ function test_loop(){
     // ! 循环的时候尽量减少使用i++,i++会比++i多一次开销
 }
 
+function test_creat_road(){
+    let BlocksMap = [
+        [1],
+        [0,2],
+        [1,3],
+        [2,4],
+        [3,5],
+        [4,6],
+        [5,7],
+        [6,8],
+        [7,9],
+        [8]
+    ];
+    let AllBlocks = [
+        '1000000000', // 0
+        '0100000000', // 1
+        '0010000000', // 2
+        '0001000000', // 3
+        '0000100000', // 4
+        '0000010000', // 5
+        '0000001000', // 6
+        '0000000100', // 7
+        '0000000010', // 8
+        '0000000001', // 9
+    ];
+
+    let current = AllBlocks[parseInt(AllBlocks.length * Math.random())];
+    let info = '';
+    for(let i = 0; i < 100000; i++){
+        let arr = [...current];
+        let idx = arr.indexOf("1");
+        let next_arr = BlocksMap[idx];
+        if(next_arr.length === 2) current = AllBlocks[Math.random() > 0.5 ? next_arr[0] : next_arr[1]];
+        else if(next_arr.length === 1) current = AllBlocks[next_arr[0]];
+        info += next_arr[0];
+    }
+    console.log(info);
+}
+
+function test1010 (){
+    let board = [];
+    let col = 8;
+    let row = 8;
+    
+    return {
+        initBoard:function(){
+            for(let r = 0; r < row; ++r){
+                let line = [];
+                for(let c = 0; c < col; ++c){
+                    line.push(0);
+                }
+                board.push(line);
+            }
+        },
+        randomFill:function(){
+            for(let r = 0; r < row; ++r){
+                for(let c = 0; c < col; ++c){
+                    board[r][c] = Math.random() > 0.5 ? 1 : 0; 
+                }
+            }
+        },
+        isCanFillByConfig:function(config){
+            let ret = false;
+            return ret;
+        },
+        parseConfig:function(config){
+            let pos1st = null;
+            let pos_list = [[0,0]];
+            for(let r = 0; r < config.length; ++r){
+                for(let c = 0; c < config[r].length; ++c){
+                    if(config[r][c] >= 1){
+                        if(pos1st === null){
+                            pos1st = [];
+                            pos1st[0] = r;
+                            pos1st[1] = c;
+                        }
+                        else{
+                            let pos_dis = [];
+                            pos_dis[0] = pos1st[0] - r;
+                            pos_dis[1] = c - pos1st[1];
+                            pos_list.push(pos_dis);
+                        }
+                    }
+                }
+            }
+            return pos_list;
+        }
+    };
+}
+
+function outputBlocks(block_config, block_dis){
+    console.log("\n************************\n");
+    for(let r = 0; r < block_config.length; ++r){
+        let line = block_config[r];
+        let info = '';
+        for(let c = 0; c < line.length; ++c){
+            let v = block_config[r][c];
+            if(v > 0) info += ' x';
+            else info += ' o';
+        } 
+        console.log(info, '  ', line);
+    }
+    console.log('------------------------');
+    let blocMap = [
+        [0,0,0,0,0],
+        [0,0,0,0,0],
+        [0,0,0,0,0],
+        [0,0,0,0,0],
+        [0,0,0,0,0]
+    ];
+    let isCanFill = (r,c)=>{
+        //console.log('iscanfill',r,c);
+        let fill_len = 0;
+        for(let i = 0; i < block_dis.length; ++i){
+            let [rr,cc] = [...block_dis[i]];
+            rr = r + rr;
+            cc = c + cc;
+            if(rr >= 0 && rr < 5 && cc >= 0 && cc < 5){
+                fill_len++;
+            }
+        }
+        if(fill_len === block_dis.length) return true;
+        return false;
+    };
+    let fillBlockMap = (r,c)=>{
+        for(let i = 0; i < block_dis.length; ++i){
+            let [rr,cc] = [...block_dis[i]];
+            rr = r + rr;
+            cc = c + cc;
+            blocMap[rr][cc] = 1;
+        }
+    };
+    let is_filled = false;
+    for(let r = 0; r < blocMap.length; ++r){
+        let line = blocMap[r];
+        for(let c = 0; c < line.length; ++c){
+            if(!is_filled && isCanFill(r, c)){
+                fillBlockMap(r, c);
+                is_filled = true;
+                break;
+            }
+        }
+    }
+    for(let r = 0; r < blocMap.length; ++r){
+        let line = blocMap[r];
+        let info = '';
+        for(let c = 0; c < line.length; ++c){
+            let v = blocMap[r][c];
+            if(v > 0) info += ' x';
+            else info += ' o';
+        } 
+        console.log(info, '  ', line);
+    }
+}
+
+function formatIp(info){
+    //当前 IP：106.121.74.190  来自于：中国 北京 北京  电信
+    return info.split('：')[2].split(' ');
+}
+
+
 
 function main(){
+    // let rand = Math.random();
+    // let rate = 0.1;
+    // let a = rate || 0.5;
+    // console.log(a, rand);
 
+    let pj_config = [0,6,10,14];
+    let pj_num = 15;
+    console.log(parseInt(pj_config[pj_config.length]));
+    if(pj_num > pj_config[pj_config.length]){
+        console.log('xxxxxx');
+    }
+    else{
+        console.log('yyyyy');
+    }
+  
+    // let Blocks = [
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0],
+    //         [0,0,1,0,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,2,0,0],
+    //         [0,0,2,0,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0],
+    //         [0,0,2,2,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,3,0,0],
+    //         [0,0,3,0,0],
+    //         [0,0,3,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0],
+    //         [0,3,3,3,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0],
+    //         [0,4,4,4,4],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,4,0,0],
+    //         [0,0,4,0,0],
+    //         [0,0,4,0,0],
+    //         [0,0,4,0,0],
+    //         [0,0,0,0,0] 
+    //     ],
+    //     [
+    //         [0,0,5,0,0],
+    //         [0,0,5,0,0],
+    //         [0,0,5,0,0],
+    //         [0,0,5,0,0],
+    //         [0,0,5,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0],
+    //         [5,5,5,5,5],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,6,0,0],
+    //         [0,0,6,0,0],
+    //         [0,6,6,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,6,6,0,0],
+    //         [0,0,6,0,0],
+    //         [0,0,6,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,6,0],
+    //         [0,6,6,6,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,6,0,0,0],
+    //         [0,6,6,6,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,1,1,0,0],
+    //         [0,1,1,0,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,2,2,2,0],
+    //         [0,2,2,2,0],
+    //         [0,2,2,2,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,3,3,3,0],
+    //         [0,0,0,3,0],
+    //         [0,0,0,3,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,3,0,0,0],
+    //         [0,3,0,0,0],
+    //         [0,3,3,3,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,4,4,4,0],
+    //         [0,4,0,0,0],
+    //         [0,4,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,5,0],
+    //         [0,0,0,5,0],
+    //         [0,5,5,5,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,6,0,0,0],
+    //         [0,6,6,0,0],
+    //         [0,0,6,0,0],
+    //         [0,0,0,0,0] 
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,1,1,0],
+    //         [0,1,1,0,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,2,0,0],
+    //         [0,2,2,2,0],
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,3,0,0],
+    //         [0,3,3,0,0],
+    //         [0,0,3,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,2,0,0],
+    //         [0,0,2,2,0],
+    //         [0,0,2,0,0],
+    //         [0,0,0,0,0]
+    //     ],
+    //     [
+    //         [0,0,0,0,0],
+    //         [0,0,0,0,0],
+    //         [0,2,2,2,0],
+    //         [0,0,2,0,0],
+    //         [0,0,0,0,0]
+    //     ]
+    // ];
+    // let tt = new test1010();
+    // tt.initBoard();
+    // tt.randomFill();
+    // let configs = [];
+    // for(let i = 0; i < Blocks.length; ++i){
+    //     let config = tt.parseConfig(Blocks[i]);
+    //     configs.push(config);
+    //     outputBlocks(Blocks[i], config);
+    // }
+    // console.log(configs);
+    // let config = tt.parseConfig(Blocks[21]);
+    // outputBlocks(Blocks[21], config);
+    // console.log(config);
+    //console.log(configs);
+    //test_creat_road();
     //test_map();
     //test_loop();
     //test_random();
@@ -118,16 +485,32 @@ function main(){
 
     //test_read_endless_config();
 
-    function f(a,b,m){
-        let ret = [];
-        let t = [1,2];
-        //2*2
-        //2*2*2
-        //2*2*2*2
-        //2*2*2*2*2
-        return ret;
-    }
+    // function f(a,b,m){
+    //     let ret = [];
+    //     let t = [1,2];
+    //     //2*2
+    //     //2*2*2
+    //     //2*2*2*2
+    //     //2*2*2*2*2
+    //     return ret;
+    // }
+    let BoomClearBlocks = [
+        [0, 2], [-1, 1] ,[0, 1] ,
+        [1, 1], [-2, 0] ,[-1, 0] ,
+        [0, 0], [1, 0]  ,[2, 0],
+        [-1,-1],[0,-1]  ,[1,-1],[0,-2]
+    ];
+    // BoomClearBlocks.forEach(([r, c])=>{
+    //     console.log(r,c);
+    // });
+    let s1 = Math.sin(60);
+    console.log(s1);
 
+    let a = 15;
+    for(let i = 0; i < 100; ++i){
+        console.log(i % a);
+    }
 }
 
 main();
+

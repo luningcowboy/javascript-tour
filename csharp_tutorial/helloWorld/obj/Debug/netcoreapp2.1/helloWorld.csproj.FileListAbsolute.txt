@@ -1,0 +1,11 @@
+/Users/tu/self/github/csharp_tutorial/helloWorld/bin/Debug/netcoreapp2.1/helloWorld.deps.json
+/Users/tu/self/github/csharp_tutorial/helloWorld/bin/Debug/netcoreapp2.1/helloWorld.runtimeconfig.json
+/Users/tu/self/github/csharp_tutorial/helloWorld/bin/Debug/netcoreapp2.1/helloWorld.runtimeconfig.dev.json
+/Users/tu/self/github/csharp_tutorial/helloWorld/bin/Debug/netcoreapp2.1/helloWorld.dll
+/Users/tu/self/github/csharp_tutorial/helloWorld/bin/Debug/netcoreapp2.1/helloWorld.pdb
+/Users/tu/self/github/csharp_tutorial/helloWorld/obj/Debug/netcoreapp2.1/helloWorld.csprojAssemblyReference.cache
+/Users/tu/self/github/csharp_tutorial/helloWorld/obj/Debug/netcoreapp2.1/helloWorld.csproj.CoreCompileInputs.cache
+/Users/tu/self/github/csharp_tutorial/helloWorld/obj/Debug/netcoreapp2.1/helloWorld.AssemblyInfoInputs.cache
+/Users/tu/self/github/csharp_tutorial/helloWorld/obj/Debug/netcoreapp2.1/helloWorld.AssemblyInfo.cs
+/Users/tu/self/github/csharp_tutorial/helloWorld/obj/Debug/netcoreapp2.1/helloWorld.dll
+/Users/tu/self/github/csharp_tutorial/helloWorld/obj/Debug/netcoreapp2.1/helloWorld.pdb
